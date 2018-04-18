@@ -1,5 +1,11 @@
 # Log Kube learning progress
 
+## 2018-04-17 14:58:11
+
+* [Kube external storage provisioner](https://github.com/kubernetes-incubator/external-storage)
+* [Glusterfs](https://www.gluster.org/, http://blog.51cto.com/wzlinux/1949441)
+* [NFS](https://github.com/kubernetes-incubator/external-storage/tree/master/nfs)
+
 ## 2018-04-11 09:08:43
 
 * [Helm](https://github.com/kubernetes/helm)

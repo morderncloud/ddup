@@ -206,6 +206,8 @@ $kubeadm init --pod-network-cidr=192.168.0.0/16
 
 ## Validation
 
+    [Grafana URL](http://lexbz2226.lexington.ibm.com:30161/)
+
     $wget https://raw.githubusercontent.com/kubernetes/website/master/docs/tasks/run-application/deployment.yaml
     $kubectl apply -f deployment.yaml
     $kubectl get pods
