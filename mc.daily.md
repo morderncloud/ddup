@@ -2,6 +2,7 @@
 
 ## 2018-04-17 14:58:11
 
+* [Nginx Ingress Controller](https://github.com/kubernetes/ingress-nginx/blob/master/README.md)
 * [Kube external storage provisioner](https://github.com/kubernetes-incubator/external-storage)
 * [Glusterfs](https://www.gluster.org/, http://blog.51cto.com/wzlinux/1949441)
 * [NFS](https://github.com/kubernetes-incubator/external-storage/tree/master/nfs)
