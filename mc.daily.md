@@ -1,5 +1,9 @@
 # Log Kube learning progress
 
+## 2018-04-18 11:44:16
+
+* [Kube API client libraries, supporting Go, Java, Javascript, Python, .Net](https://kubernetes.io/docs/reference/client-libraries/)
+
 ## 2018-04-17 14:58:11
 
 * [Nginx Ingress Controller](https://github.com/kubernetes/ingress-nginx/blob/master/README.md)

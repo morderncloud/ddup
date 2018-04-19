@@ -1,5 +1,10 @@
 # Tools
 
+## API tool
+
+https://swagger.io/
+https://www.soapui.org/
+https://www.getpostman.com/
 ## Doc writing
 
 * [Markdown](https://daringfireball.net/projects/markdown/syntax)
@@ -10,8 +15,9 @@
 
 ## Drawing
 
-* [Online drawing](https://www.draw.io/)
-
+* [Online drawing](https://www.draw.io/, https://about.draw.io/features/examples/, )
+* [Offline](https://www.draw.io/app, https://about.draw.io/integrations/#integrations_offline, https://support.draw.io/display/DO/Using+draw.io+in+Offline+Mode)
+* [draw io templates](https://github.com/jgraph/drawio-libs, https://github.com/jgraph/drawio-diagrams)
 ## Learning
 
 * [Kube](https://kubernetes.io/)

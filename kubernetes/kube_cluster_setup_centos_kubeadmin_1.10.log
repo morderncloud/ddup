@@ -1,0 +1,151 @@
+# This log is for kube 1.10 install on RHEL 7.4
+
+[root@lexbz2226 ~]# kubeadm init --pod-network-cidr=192.168.0.0/16
+  [init] Using Kubernetes version: v1.10.1
+  [init] Using Authorization modes: [Node RBAC]
+  [preflight] Running pre-flight checks.
+  [WARNING SystemVerification]: docker version is greater than the most recently validated version. Docker version: 18.03.0-ce. Max validated version: 17.03
+  [preflight] Starting the kubelet service
+  [certificates] Generated ca certificate and key.
+  [certificates] Generated apiserver certificate and key.
+  [certificates] apiserver serving cert is signed for DNS names [lexbz2226.lexington.ibm.com kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 9.51.102.226]
+  [certificates] Generated apiserver-kubelet-client certificate and key.
+  [certificates] Generated etcd/ca certificate and key.
+  [certificates] Generated etcd/server certificate and key.
+  [certificates] etcd/server serving cert is signed for DNS names [localhost] and IPs [127.0.0.1]
+  [certificates] Generated etcd/peer certificate and key.
+  [certificates] etcd/peer serving cert is signed for DNS names [lexbz2226.lexington.ibm.com] and IPs [9.51.102.226]
+  [certificates] Generated etcd/healthcheck-client certificate and key.
+  [certificates] Generated apiserver-etcd-client certificate and key.
+  [certificates] Generated sa key and public key.
+  [certificates] Generated front-proxy-ca certificate and key.
+  [certificates] Generated front-proxy-client certificate and key.
+  [certificates] Valid certificates and keys now exist in "/etc/kubernetes/pki"
+  [kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/admin.conf"
+  [kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/kubelet.conf"
+  [kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/controller-manager.conf"
+  [kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/scheduler.conf"
+  [controlplane] Wrote Static Pod manifest for component kube-apiserver to "/etc/kubernetes/manifests/kube-apiserver.yaml"
+  [controlplane] Wrote Static Pod manifest for component kube-controller-manager to "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+  [controlplane] Wrote Static Pod manifest for component kube-scheduler to "/etc/kubernetes/manifests/kube-scheduler.yaml"
+  [etcd] Wrote Static Pod manifest for a local etcd instance to "/etc/kubernetes/manifests/etcd.yaml"
+  [init] Waiting for the kubelet to boot up the control plane as Static Pods from directory "/etc/kubernetes/manifests".
+  [init] This might take a minute or longer if the control plane images have to be pulled.
+  [apiclient] All control plane components are healthy after 21.501876 seconds
+  [uploadconfig] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+  [markmaster] Will mark node lexbz2226.lexington.ibm.com as master by adding a label and a taint
+  [markmaster] Master lexbz2226.lexington.ibm.com tainted and labelled with key/value: node-role.kubernetes.io/master=""
+  [bootstraptoken] Using token: br97w4.g06tj3cytew4hu4v
+  [bootstraptoken] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+  [bootstraptoken] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+  [bootstraptoken] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+  [bootstraptoken] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+  [addons] Applied essential addon: kube-dns
+  [addons] Applied essential addon: kube-proxy
+
+  Your Kubernetes master has initialized successfully!
+
+  To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+  You should now deploy a pod network to the cluster.
+  Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+  You can now join any number of machines by running the following on each node
+  as root:
+
+  kubeadm join 9.51.102.226:6443 --token br97w4.g06tj3cytew4hu4v --discovery-token-ca-cert-hash sha256:5159d1d0170adb46f64b03f9d710a21e698ca21087ef56f4af0fffdc2badbbe8
+
+  [root@lexbz2226 ~]#
+
+  [root@lexbz2202 ~]# kubeadm join 9.51.102.226:6443 --token br97w4.g06tj3cytew4hu4v --discovery-token-ca-cert-hash sha256:5159d1d0170adb46f64b03f9d710a21e698ca21087ef56f4af0fffdc2badbbe8
+    [preflight] Running pre-flight checks.
+      [WARNING SystemVerification]: docker version is greater than the most recently validated version. Docker version: 18.03.0-ce. Max validated version: 17.03
+      [WARNING FileExisting-crictl]: crictl not found in system path
+    Suggestion: go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
+    [preflight] Starting the kubelet service
+    [discovery] Trying to connect to API Server "9.51.102.226:6443"
+    [discovery] Created cluster-info discovery client, requesting info from "https://9.51.102.226:6443"
+    [discovery] Requesting info from "https://9.51.102.226:6443" again to validate TLS against the pinned public key
+    [discovery] Cluster info signature and contents are valid and TLS certificate validates against pinned roots, will use API Server "9.51.102.226:6443"
+    [discovery] Successfully established connection with API Server "9.51.102.226:6443"
+
+    This node has joined the cluster:
+    * Certificate signing request was sent to master and a response
+      was received.
+    * The Kubelet was informed of the new secure connection details.
+
+    Run 'kubectl get nodes' on the master to see this node join the cluster.
+
+[root@lexbz2226 ~]# kubectl get nodes
+  NAME                          STATUS    ROLES     AGE       VERSION
+  lexbz2184.lexington.ibm.com   Ready     <none>    6m        v1.10.1
+  lexbz2202.lexington.ibm.com   Ready     <none>    11m       v1.10.1
+  lexbz2226.lexington.ibm.com   Ready     master    44m       v1.10.1
+
+  [root@lexbz2226 ~]# kubectl get nodes
+NAME                          STATUS    ROLES     AGE       VERSION
+lexbz2184.lexington.ibm.com   Ready     <none>    6m        v1.10.1
+lexbz2202.lexington.ibm.com   Ready     <none>    11m       v1.10.1
+lexbz2226.lexington.ibm.com   Ready     master    44m       v1.10.1
+[root@lexbz2226 ~]# kubectl get pods -n kube-system
+NAME                                                  READY     STATUS             RESTARTS   AGE
+etcd-lexbz2226.lexington.ibm.com                      1/1       Running            0          44m
+kube-apiserver-lexbz2226.lexington.ibm.com            1/1       Running            0          43m
+kube-controller-manager-lexbz2226.lexington.ibm.com   1/1       Running            0          44m
+kube-dns-86f4d74b45-xtqpr                             0/3       CrashLoopBackOff   17         44m
+kube-router-4m7j8                                     1/1       Running            0          7m
+kube-router-mtqvl                                     1/1       Running            0          15m
+kube-router-pn7b5                                     1/1       Running            0          12m
+kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running            0          44m
+
+[root@lexbz2226 ~]# kubectl get pods -n kube-system
+NAME                                                  READY     STATUS             RESTARTS   AGE
+etcd-lexbz2226.lexington.ibm.com                      1/1       Running            0          57m
+kube-apiserver-lexbz2226.lexington.ibm.com            1/1       Running            0          56m
+kube-controller-manager-lexbz2226.lexington.ibm.com   1/1       Running            0          57m
+kube-dns-86f4d74b45-xtqpr                             2/3       CrashLoopBackOff   25         58m
+kube-router-4m7j8                                     1/1       Running            0          20m
+kube-router-mtqvl                                     1/1       Running            0          29m
+kube-router-pn7b5                                     1/1       Running            0          25m
+kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running            0          57m
+
+[root@lexbz2184 ~]# kubeadm join 9.51.102.226:6443 --token br97w4.g06tj3cytew4hu4v --discovery-token-ca-cert-hash sha256:5159d1d0170adb46f64b03f9d710a21e698ca21087ef56f4af0fffdc2badbbe8
+  [preflight] Running pre-flight checks.
+    [WARNING SystemVerification]: docker version is greater than the most recently validated version. Docker version: 18.03.0-ce. Max validated version: 17.03
+    [WARNING FileExisting-crictl]: crictl not found in system path
+  Suggestion: go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
+  [preflight] Some fatal errors occurred:
+    [ERROR FileAvailable--etc-kubernetes-bootstrap-kubelet.conf]: /etc/kubernetes/bootstrap-kubelet.conf already exists
+  [preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+
+
+
+  [root@lexbz2226 ~]#     docker run --privileged --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.1 kube-proxy --cleanup-iptables
+Flag --cleanup-iptables has been deprecated, This flag is replaced by --cleanup.
+W0419 12:34:25.920093       1 server.go:195] WARNING: all flags other than --config, --write-config-to, and --cleanup are deprecated. Please begin using a config file ASAP.
+I0419 12:34:25.920159       1 feature_gate.go:226] feature gates: &{{} map[]}
+time="2018-04-19T12:34:25Z" level=warning msg="Running modprobe ip_vs failed with message: `modprobe: ERROR: ../libkmod/libkmod.c:586 kmod_search_moddep() could not open moddep file '/lib/modules/3.10.0-327.4.5.el7.x86_64/modules.dep.bin'\nmodprobe: WARNING: Module ip_vs not found in directory /lib/modules/3.10.0-327.4.5.el7.x86_64`, error: exit status 1"
+I0419 12:34:25.926527       1 server.go:444] Version: v1.10.1
+[root@lexbz2226 ~]#     docker run --privileged --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.1 kube-proxy --cleanup
+W0419 12:35:09.047554       1 server.go:195] WARNING: all flags other than --config, --write-config-to, and --cleanup are deprecated. Please begin using a config file ASAP.
+I0419 12:35:09.047660       1 feature_gate.go:226] feature gates: &{{} map[]}
+time="2018-04-19T12:35:09Z" level=warning msg="Running modprobe ip_vs failed with message: `modprobe: ERROR: ../libkmod/libkmod.c:586 kmod_search_moddep() could not open moddep file '/lib/modules/3.10.0-327.4.5.el7.x86_64/modules.dep.bin'\nmodprobe: WARNING: Module ip_vs not found in directory /lib/modules/3.10.0-327.4.5.el7.x86_64`, error: exit status 1"
+I0419 12:35:09.051474       1 server.go:444] Version: v1.10.1
+
+E0419 13:30:44.407194       1 reflector.go:201] k8s.io/dns/pkg/dns/dns.go:147: Failed to list *v1.Endpoints: Get https://10.96.0.1:443/api/v1/endpoints?resourceVersion=0: dial tcp 10.96.0.1:443: getsockopt: no route to host
+I0419 13:30:44.847225       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:45.348760       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:45.847431       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:46.347288       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+E0419 13:30:46.410966       1 reflector.go:201] k8s.io/dns/pkg/dns/dns.go:147: Failed to list *v1.Endpoints: Get https://10.96.0.1:443/api/v1/endpoints?resourceVersion=0: dial tcp 10.96.0.1:443: getsockopt: no route to host
+I0419 13:30:46.847186       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:47.347392       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:47.847237       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 13:30:48.347188       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+E0419 13:30:48.414899       1 reflector.go:201] k8s.io/dns/pkg/dns/dns.go:147: Failed to list *v1.Endpoints: Get https://10.96.0.1:443/api/v1/endpoints?resourceVersion=0: dial tcp 10.96.0.1:443: getsockopt: no route to host
+I0419 13:30:48.847273       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...

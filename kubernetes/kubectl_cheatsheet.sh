@@ -3,6 +3,21 @@
 # Important: This file is not for running purpose. Just a reference
 exit 0
 
+## My collection
+
+kubectl get deploy kube-dns --namespace=kube-system -o yaml > kube-dns-deploy.yaml
+kubectl edit deploy kube-dns --namespace=kube-system
+kubectl get pods -n kube-system
+kubectl logs -f kube-dns-86f4d74b45-cqn6h kubedns -n kube-system
+watch kubectl get pods -n kube-system
+kubectl scale deploy/kube-dns -n kube-system --replicas=0
+kubectl exec -it -n kube-system kube-router-tfn9t ping 10.96.0.1
+kubectl exec -it -n kube-system kube-dns-5cc8b887db-wx84f ping 10.96.0.1
+kubectl get ep kube-dns --namespace=kube-system
+kubectl get svc --namespace=kube-system
+
+/etc/kubernetes/manifests/kube-apiserver.yaml
+
 ## [Base](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
 ## Kubectl Autocomplete

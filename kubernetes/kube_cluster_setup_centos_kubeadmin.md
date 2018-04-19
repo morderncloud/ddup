@@ -47,10 +47,25 @@
 
 ## Install Docker
 
-    $wget https://download.docker.com/linux/centos/docker-ce.repo
-    $mv docker-ce.repo /etc/yum.repos.d/
-    $yum repolist
-    $yum install -y docker # I used ibm-yum.sh install docker
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum install docker-ce
+    systemctl enable docker.service
+    systemctl start docker
+
+## Install Go 1.10 on all nodes (Optional)
+
+This is to avoid: [WARNING FileExisting-crictl]: crictl not found in system path
+But I don't see any problem without crictl
+
+wget https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -C /usr/local -xzvf go1.10.1.linux-amd64.tar.gz
+
+
+Default GOPATH is $HOME/go, so add path info to .bash_profile as:
+PATH=$PATH:$HOME/bin:/usr/local/go/bin:$HOME/go/bin
+
+yum install git -y
+go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
+
 
 ## Installing kubeadm, kubelet and kubectl
 
@@ -65,8 +80,8 @@
         EOF
 
     $setenforce 0
-    $yum install -y kubelet kubeadm kubectl # if not working, use ./ibm-yum.sh install -y kubelet kubeadm kubectl
-    $systemctl enable kubelet && systemctl start kubelet
+    $yum install -y kubelet kubeadm kubectl // if not working, use ./ibm-yum.sh install -y kubelet kubeadm kubectl
+    $systemctl enable kubelet
 
     $cat <<EOF >  /etc/sysctl.d/k8s.conf
         net.bridge.bridge-nf-call-ip6tables = 1
@@ -81,69 +96,54 @@
     $cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
         Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"
 
+    If the Docker cgroup driver and the kubelet config don’t match, change the kubelet config to match the Docker cgroup driver. The flag you need to change is --cgroup-driver. If it’s already set, you can update like so:
+
+    cp /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.bk && sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
 ## Initializing your master
 
+// kube-router still not working for me, investigating
+//$kubeadm init --pod-network-cidr=10.1.0.0/16
+
+// Calico
 $kubeadm init --pod-network-cidr=192.168.0.0/16
-    init: unrecognized option '--pod-network-cidr=192.168.0.0/16'
-    [root@lexbz2226 kube]# kubeadm init --pod-network-cidr=192.168.0.0/16
-    [init] Using Kubernetes version: v1.9.6
-    [init] Using Authorization modes: [Node RBAC]
-    [preflight] Running pre-flight checks.
-        [WARNING FileExisting-crictl]: crictl not found in system path
-    [preflight] Starting the kubelet service
-    [certificates] Generated ca certificate and key.
-    [certificates] Generated apiserver certificate and key.
-    [certificates] apiserver serving cert is signed for DNS names [lexbz2226.lexington.ibm.com kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 9.51.102.226]
-    [certificates] Generated apiserver-kubelet-client certificate and key.
-    [certificates] Generated sa key and public key.
-    [certificates] Generated front-proxy-ca certificate and key.
-    [certificates] Generated front-proxy-client certificate and key.
-    [certificates] Valid certificates and keys now exist in "/etc/kubernetes/pki"
-    [kubeconfig] Wrote KubeConfig file to disk: "admin.conf"
-    [kubeconfig] Wrote KubeConfig file to disk: "kubelet.conf"
-    [kubeconfig] Wrote KubeConfig file to disk: "controller-manager.conf"
-    [kubeconfig] Wrote KubeConfig file to disk: "scheduler.conf"
-    [controlplane] Wrote Static Pod manifest for component kube-apiserver to "/etc/kubernetes/manifests/kube-apiserver.yaml"
-    [controlplane] Wrote Static Pod manifest for component kube-controller-manager to "/etc/kubernetes/manifests/kube-controller-manager.yaml"
-    [controlplane] Wrote Static Pod manifest for component kube-scheduler to "/etc/kubernetes/manifests/kube-scheduler.yaml"
-    [etcd] Wrote Static Pod manifest for a local etcd instance to "/etc/kubernetes/manifests/etcd.yaml"
-    [init] Waiting for the kubelet to boot up the control plane as Static Pods from directory "/etc/kubernetes/manifests".
-    [init] This might take a minute or longer if the control plane images have to be pulled.
-    [apiclient] All control plane components are healthy after 28.002252 seconds
-    [uploadconfig] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-    [markmaster] Will mark node lexbz2226.lexington.ibm.com as master by adding a label and a taint
-    [markmaster] Master lexbz2226.lexington.ibm.com tainted and labelled with key/value: node-role.kubernetes.io/master=""
-    [bootstraptoken] Using token: 4d35bb.7afcbc5b331a0322
-    [bootstraptoken] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
-    [bootstraptoken] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-    [bootstraptoken] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
-    [bootstraptoken] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
-    [addons] Applied essential addon: kube-dns
-    [addons] Applied essential addon: kube-proxy
 
     Your Kubernetes master has initialized successfully!
 
     To start using your cluster, you need to run the following as a regular user:
 
-    mkdir -p $HOME/.kube
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+rm -rf $HOME/.kube && mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && chown $(id -u):$(id -g) $HOME/.kube/config
 
-    You should now deploy a pod network to the cluster.
-    Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-    https://kubernetes.io/docs/concepts/cluster-administration/addons/
+## Deploy a pod network to the cluster (kube-router)
 
-    You can now join any number of machines by running the following on each node
-    as root:
+// kube-router still not working for me, investigating
 
-    kubeadm join --token 4d35bb.7afcbc5b331a0322 9.51.102.226:6443 --discovery-token-ca-cert-hash sha256:73ac21d22e7fea51960efd3ddbefe73d053eb600294ae352a0d5b85594043452
+* kube-router providing pod networking and network policy 
 
-## Deploy a pod network to the cluster (calico)
+[root@lexbz2226 ~]# KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter.yaml
+    configmap "kube-router-cfg" created
+    daemonset "kube-router" created
+    serviceaccount "kube-router" created
+    clusterrole "kube-router" created
+    clusterrolebinding "kube-router" created
 
-    @Master
-    $mkdir -p $HOME/.kube
-    $sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    $sudo chown $(id -u):$(id -g) $HOME/.kube/config
+* kube-router providing service proxy, firewall and pod networking
+
+    KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter-all-features.yaml
+
+    KUBECONFIG=/etc/kubernetes/admin.conf kubectl -n kube-system delete ds kube-proxy
+    
+    // failed ? 
+    docker run --privileged --net=host gcr.io/google_containers/kube-proxy-amd64:v1.7.3 kube-proxy --cleanup-iptables
+    docker run --privileged --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.1 kube-proxy --cleanup-iptables
+        W0419 12:25:01.656439       1 server.go:190] WARNING: all flags other than --config, --write-config-to, and --cleanup-iptables are deprecated. Please begin using a config file ASAP.
+    E0419 12:25:01.946962       1 proxier.go:604] Failed to execute iptables-restore for filter: exit status 1 (iptables-restore: line 3 failed
+    )
+    error: encountered an error while tearing down rules.
+
+* [Ref](https://github.com/cloudnativelabs/kube-router/blob/master/docs/kubeadm.md)
+
+## Deploy a pod network to the cluster (or calico if kube-router is not used)
 
     $kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
         configmap "calico-config" created
@@ -173,6 +173,7 @@ $kubeadm init --pod-network-cidr=192.168.0.0/16
         kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running   0          2m
 
 ## Master isolation
+
     Once kube-dns is up, proceed the following steps.
 
     $kubectl taint nodes --all node-role.kubernetes.io/master-
@@ -223,31 +224,7 @@ $kubeadm init --pod-network-cidr=192.168.0.0/16
         nginx-deployment-6c54bd5869-bljmh   1/1       Running   0          5m        192.168.173.65   lexbz2202.lexington.ibm.com
 
     $curl 192.168.21.129
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <title>Welcome to nginx!</title>
-        <style>
-            body {
-                width: 35em;
-                margin: 0 auto;
-                font-family: Tahoma, Verdana, Arial, sans-serif;
-            }
-        </style>
-        </head>
-        <body>
-        <h1>Welcome to nginx!</h1>
-        <p>If you see this page, the nginx web server is successfully installed and
-        working. Further configuration is required.</p>
-
-        <p>For online documentation and support please refer to
-        <a href="http://nginx.org/">nginx.org</a>.<br/>
-        Commercial support is available at
-        <a href="http://nginx.com/">nginx.com</a>.</p>
-
         <p><em>Thank you for using nginx.</em></p>
-        </body>
-        </html>
 
 ## Expose service and test on Browser
 
@@ -270,7 +247,16 @@ $kubeadm init --pod-network-cidr=192.168.0.0/16
     or
     http://lexbz2184.lexington.ibm.com:30678/
 
+## Restart
+
+systemctl stop kubelet && systemctl stop docker && systemctl daemon-reload && systemctl start docker && systemctl start kubelet
+
+* Docker: systemctl restart docker
+* Kubelet: systemctl daemon-reload && systemctl restart kubelet
+
 ## Tear down
+
+* On Master
 
 kubectl drain lexbz2184.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
 kubectl drain lexbz2202.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
@@ -280,51 +266,17 @@ kubectl delete node lexbz2184.lexington.ibm.com
 kubectl delete node lexbz2202.lexington.ibm.com
 kubectl delete node lexbz2226.lexington.ibm.com
 
+* On nodes
+
 kubeadm reset
 
-* logs
-    [root@lexbz2226 kube]# kubectl drain lexbz2184.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
-    node "lexbz2184.lexington.ibm.com" cordoned
-    WARNING: Ignoring DaemonSet-managed pods: calico-node-7l5jn, kube-proxy-hrpm4
-    pod "kube-dns-6f4fd4bdf-87skp" evicted
-    pod "nginx-deployment-6c54bd5869-njxrv" evicted
-    node "lexbz2184.lexington.ibm.com" drained
-    [root@lexbz2226 kube]# kubectl drain lexbz2202.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
-    node "lexbz2202.lexington.ibm.com" cordoned
+* Docker administration
 
-    WARNING: Ignoring DaemonSet-managed pods: calico-node-65v5p, kube-proxy-rkn86
-    pod "nginx-deployment-6c54bd5869-4tkws" evicted
-    pod "kube-dns-6f4fd4bdf-88fzn" evicted
-    pod "calico-kube-controllers-6b7986ddff-vlggb" evicted
-    node "lexbz2202.lexington.ibm.com" drained
-    [root@lexbz2226 kube]#
-    [root@lexbz2226 kube]# kubectl delete node lexbz2184.lexington.ibm.com
-    node "lexbz2184.lexington.ibm.com" deleted
-    [root@lexbz2226 kube]# kubectl delete node lexbz2202.lexington.ibm.com
-    node "lexbz2202.lexington.ibm.com" deleted
-    [root@lexbz2226 kube]# kubectl get nodes
-    NAME                          STATUS    ROLES     AGE       VERSION
-    lexbz2226.lexington.ibm.com   Ready     master    14h       v1.9.6
-    [root@lexbz2226 kube]# kubectl drain lexbz2226.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
-    node "lexbz2226.lexington.ibm.com" cordoned
-    WARNING: Ignoring DaemonSet-managed pods: calico-node-459bv, kube-proxy-gbbfk; Deleting pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: etcd-lexbz2226.lexington.ibm.com, kube-apiserver-lexbz2226.lexington.ibm.com, kube-controller-manager-lexbz2226.lexington.ibm.com, kube-scheduler-lexbz2226.lexington.ibm.com
-    pod "nginx-deployment-6c54bd5869-rt9dm" evicted
-    pod "nginx-deployment-6c54bd5869-g8pkf" evicted
-    pod "calico-kube-controllers-6b7986ddff-npzjq" evicted
-    pod "kube-dns-6f4fd4bdf-jbsvf" evicted
-    node "lexbz2226.lexington.ibm.com" drained
-    [root@lexbz2226 kube]# kubectl delete node lexbz2226.lexington.ibm.com
-    node "lexbz2226.lexington.ibm.com" deleted
-    [root@lexbz2226 kube]# kubectl get nodes
-    No resources found.
-    [root@lexbz2226 kube]# kubeadm reset
-    [preflight] Running pre-flight checks.
-    [reset] Stopping the kubelet service.
-    [reset] Unmounting mounted directories in "/var/lib/kubelet"
-    [reset] Removing kubernetes-managed containers.
-    [reset] Deleting contents of stateful directories: [/var/lib/kubelet /etc/cni/net.d /var/lib/dockershim /var/run/kubernetes /var/lib/etcd]
-    [reset] Deleting contents of config directories: [/etc/kubernetes/manifests /etc/kubernetes/pki]
-    [reset] Deleting files: [/etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf]
+systemctl restart docker
+docker rm -f $(docker ps -aq)
+docker rmi -f $(docker images -q)
+docker system prune -a
+docker images purge
 
 
 ## Issue & fix
@@ -344,4 +296,130 @@ kubeadm reset
     [root@lexbz2184 ~]# mv /etc/kubernetes/kubelet.conf /etc/kubernetes/kubelet.conf.bk
     [root@lexbz2184 ~]# systemctl restart kubelet
     [root@lexbz2184 ~]# netstat -anp|grep 10250
+
+* kubectl drain cmd hung
+
+On each nodes,
+systemctl restart docker
+systemctl restart kubelet
+
+* Error: No such image when “docker images” shows image, “docker rmi” says “no such image” or “reference does not exist”
+
+sudo service docker stop
+sudo rm -rf /var/lib/docker
+sudo service docker start
+
+* [WARNING FileExisting-crictl]: crictl not found in system path
+
+Suggestion: go get github.com/kubernetes-incubator/cri-tools/cmd/crictl
+Default GOPATH is $HOME/go, so add path info to .bash_profile as:
+PATH=$PATH:$HOME/bin:/usr/local/go/bin:$HOME/go/bin
+
+* Adding node error: [ERROR FileAvailable--etc-kubernetes-bootstrap-kubelet.conf]: /etc/kubernetes/bootstrap-kubelet.conf already exists
+    mv /etc/kubernetes/bootstrap-kubelet.conf /etc/kubernetes/bootstrap-kubelet.conf.bk
+    and rerun kubeadm join cmd
+
+* kube-dns pods was with status CrashLoopBackOff
+
+Before kube-router install:
+[root@lexbz2226 ~]# kubectl get pods -n kube-system
+NAME                                                  READY     STATUS    RESTARTS   AGE
+etcd-lexbz2226.lexington.ibm.com                      1/1       Running   0          29s
+kube-apiserver-lexbz2226.lexington.ibm.com            1/1       Running   0          37s
+kube-controller-manager-lexbz2226.lexington.ibm.com   1/1       Running   0          18s
+kube-dns-86f4d74b45-2jlgm                             0/3       Pending   0          1m
+kube-proxy-fcbl8                                      1/1       Running   0          1m
+kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running   0          26s
+
+After kube-router install: 
+
+[root@lexbz2226 ~]# kubectl get pods -n kube-system
+    NAME                                                  READY     STATUS             RESTARTS   AGE
+    etcd-lexbz2226.lexington.ibm.com                      1/1       Running            0          57m
+    kube-apiserver-lexbz2226.lexington.ibm.com            1/1       Running            0          56m
+    kube-controller-manager-lexbz2226.lexington.ibm.com   1/1       Running            0          57m
+    kube-dns-86f4d74b45-xtqpr                             2/3       CrashLoopBackOff   25         58m
+    kube-router-4m7j8                                     1/1       Running            0          20m
+    kube-router-mtqvl                                     1/1       Running            0          29m
+    kube-router-pn7b5                                     1/1       Running            0          25m
+    kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running            0          57m
+
+I restarted kubelet on all nodes, looked better:
+
+[root@lexbz2226 ~]# kubectl get pods -n kube-system
+    NAME                                                  READY     STATUS    RESTARTS   AGE
+    etcd-lexbz2226.lexington.ibm.com                      1/1       Running   1          1h
+    kube-apiserver-lexbz2226.lexington.ibm.com            1/1       Running   1          1h
+    kube-controller-manager-lexbz2226.lexington.ibm.com   1/1       Running   1          1h
+    kube-dns-86f4d74b45-xtqpr                             2/3       Running   51         1h
+    kube-router-4m7j8                                     1/1       Running   1          48m
+    kube-router-mtqvl                                     1/1       Running   1          57m
+    kube-router-pn7b5                                     1/1       Running   1          53m
+    kube-scheduler-lexbz2226.lexington.ibm.com            1/1       Running   1          1h
+
+but still with error, checking further..
+
+check container logs in the pod: kubectl logs kube-dns-86f4d74b45-xtqpr kubedns -n kube-system
+
+I0419 02:54:01.578925       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 02:54:02.077329       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 02:54:02.577372       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 02:54:03.077326       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+E0419 02:54:03.127364       1 reflector.go:201] k8s.io/dns/pkg/dns/dns.go:147: Failed to list *v1.Endpoints: Get https://10.96.0.1:443/api/v1/endpoints?resourceVersion=0: dial tcp 10.96.0.1:443: getsockopt: no route to host
+I0419 02:54:03.577310       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 02:54:04.077367       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0419 02:54:04.577336       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+F0419 02:54:05.077310       1 dns.go:167] Timeout waiting for initialization
+
+kubectl describe pod kube-apiserver-lexbz2226.lexington.ibm.com -n kube-system
+
+--service-cluster-ip-range=10.96.0.0/12
+--secure-port=6443
+
+/etc/kubernetes/manifests/kube-apiserver.yaml on the master and changing the liveness probe:
+
+livenessProbe:
+  failureThreshold: 8
+  httpGet:
+    host: 127.0.0.1
+    path: /healthz
+    port: 443           # was 6443
+    scheme: HTTPS
+
+https://github.com/kubernetes/kubeadm/issues/193
+
+[root@lexbz2226 ~]# kubectl get services -n kube-system
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)         AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP   1h
+[root@lexbz2226 ~]# kubectl get services
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   1h
+
+
+* Failed to get properties: Connection timed out
+
+[root@lexbz2226 ~]# systemctl status docker
+
+[root@lexbz2226 ~]# systemctl --force --force reboot
+
+* Failed to clear iptables created by kube-proxy
+
+[root@lexbz2226 ~]#     docker run --privileged --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.1 kube-proxy --cleanup
+
+W0419 12:35:09.047554       1 server.go:195] WARNING: all flags other than --config, --write-config-to, and --cleanup are deprecated. Please begin using a config file ASAP.
+I0419 12:35:09.047660       1 feature_gate.go:226] feature gates: &{{} map[]}
+time="2018-04-19T12:35:09Z" level=warning msg="Running modprobe ip_vs failed with message: `modprobe: ERROR: ../libkmod/libkmod.c:586 kmod_search_moddep() could not open moddep file '/lib/modules/3.10.0-327.4.5.el7.x86_64/modules.dep.bin'\nmodprobe: WARNING: Module ip_vs not found in directory /lib/modules/3.10.0-327.4.5.el7.x86_64`, error: exit status 1"
+I0419 12:35:09.051474       1 server.go:444] Version: v1.10.1
+
+A: just add a volumn mount
+docker run --privileged -v /lib/modules/:/lib/modules/:ro --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.1 kube-proxy --cleanup-iptables
+
+Flag --cleanup-iptables has been deprecated, This flag is replaced by --cleanup.
+W0419 13:19:06.347266       1 server.go:195] WARNING: all flags other than --config, --write-config-to, and --cleanup are deprecated. Please begin using a config file ASAP.
+I0419 13:19:06.347350       1 feature_gate.go:226] feature gates: &{{} map[]}
+I0419 13:19:06.351409       1 server.go:444] Version: v1.10.1
+
+/etc/kubernetes/manifests/kube-apiserver.yaml
+
+## Ref
 

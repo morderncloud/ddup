@@ -1,0 +1,127 @@
+# This log is for kube 1.9 install on RHEL 7.4
+
+[root@lexbz2226 kube]# kubeadm init --pod-network-cidr=192.168.0.0/16
+    [init] Using Kubernetes version: v1.9.6
+    [init] Using Authorization modes: [Node RBAC]
+    [preflight] Running pre-flight checks.
+        [WARNING FileExisting-crictl]: crictl not found in system path
+    [preflight] Starting the kubelet service
+    [certificates] Generated ca certificate and key.
+    [certificates] Generated apiserver certificate and key.
+    [certificates] apiserver serving cert is signed for DNS names [lexbz2226.lexington.ibm.com kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 9.51.102.226]
+    [certificates] Generated apiserver-kubelet-client certificate and key.
+    [certificates] Generated sa key and public key.
+    [certificates] Generated front-proxy-ca certificate and key.
+    [certificates] Generated front-proxy-client certificate and key.
+    [certificates] Valid certificates and keys now exist in "/etc/kubernetes/pki"
+    [kubeconfig] Wrote KubeConfig file to disk: "admin.conf"
+    [kubeconfig] Wrote KubeConfig file to disk: "kubelet.conf"
+    [kubeconfig] Wrote KubeConfig file to disk: "controller-manager.conf"
+    [kubeconfig] Wrote KubeConfig file to disk: "scheduler.conf"
+    [controlplane] Wrote Static Pod manifest for component kube-apiserver to "/etc/kubernetes/manifests/kube-apiserver.yaml"
+    [controlplane] Wrote Static Pod manifest for component kube-controller-manager to "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+    [controlplane] Wrote Static Pod manifest for component kube-scheduler to "/etc/kubernetes/manifests/kube-scheduler.yaml"
+    [etcd] Wrote Static Pod manifest for a local etcd instance to "/etc/kubernetes/manifests/etcd.yaml"
+    [init] Waiting for the kubelet to boot up the control plane as Static Pods from directory "/etc/kubernetes/manifests".
+    [init] This might take a minute or longer if the control plane images have to be pulled.
+    [apiclient] All control plane components are healthy after 28.002252 seconds
+    [uploadconfig] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+    [markmaster] Will mark node lexbz2226.lexington.ibm.com as master by adding a label and a taint
+    [markmaster] Master lexbz2226.lexington.ibm.com tainted and labelled with key/value: node-role.kubernetes.io/master=""
+    [bootstraptoken] Using token: 4d35bb.7afcbc5b331a0322
+    [bootstraptoken] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+    [bootstraptoken] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+    [bootstraptoken] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+    [bootstraptoken] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+    [addons] Applied essential addon: kube-dns
+    [addons] Applied essential addon: kube-proxy
+
+    Your Kubernetes master has initialized successfully!
+
+    To start using your cluster, you need to run the following as a regular user:
+
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    You should now deploy a pod network to the cluster.
+    Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+    https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+    You can now join any number of machines by running the following on each node
+    as root:
+
+    kubeadm join --token 4d35bb.7afcbc5b331a0322 9.51.102.226:6443 --discovery-token-ca-cert-hash sha256:73ac21d22e7fea51960efd3ddbefe73d053eb600294ae352a0d5b85594043452
+
+    [root@lexbz2226 kube]# kubectl drain lexbz2184.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
+    node "lexbz2184.lexington.ibm.com" cordoned
+    WARNING: Ignoring DaemonSet-managed pods: calico-node-7l5jn, kube-proxy-hrpm4
+    pod "kube-dns-6f4fd4bdf-87skp" evicted
+    pod "nginx-deployment-6c54bd5869-njxrv" evicted
+    node "lexbz2184.lexington.ibm.com" drained
+[root@lexbz2226 kube]# kubectl drain lexbz2202.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
+    node "lexbz2202.lexington.ibm.com" cordoned
+
+    WARNING: Ignoring DaemonSet-managed pods: calico-node-65v5p, kube-proxy-rkn86
+    pod "nginx-deployment-6c54bd5869-4tkws" evicted
+    pod "kube-dns-6f4fd4bdf-88fzn" evicted
+    pod "calico-kube-controllers-6b7986ddff-vlggb" evicted
+    node "lexbz2202.lexington.ibm.com" drained
+[root@lexbz2226 kube]# kubectl delete node lexbz2184.lexington.ibm.com
+    node "lexbz2184.lexington.ibm.com" deleted
+    [root@lexbz2226 kube]# kubectl delete node lexbz2202.lexington.ibm.com
+    node "lexbz2202.lexington.ibm.com" deleted
+    [root@lexbz2226 kube]# kubectl get nodes
+    NAME                          STATUS    ROLES     AGE       VERSION
+    lexbz2226.lexington.ibm.com   Ready     master    14h       v1.9.6
+[root@lexbz2226 kube]# kubectl drain lexbz2226.lexington.ibm.com --delete-local-data --force --ignore-daemonsets
+    node "lexbz2226.lexington.ibm.com" cordoned
+    WARNING: Ignoring DaemonSet-managed pods: calico-node-459bv, kube-proxy-gbbfk; Deleting pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: etcd-lexbz2226.lexington.ibm.com, kube-apiserver-lexbz2226.lexington.ibm.com, kube-controller-manager-lexbz2226.lexington.ibm.com, kube-scheduler-lexbz2226.lexington.ibm.com
+    pod "nginx-deployment-6c54bd5869-rt9dm" evicted
+    pod "nginx-deployment-6c54bd5869-g8pkf" evicted
+    pod "calico-kube-controllers-6b7986ddff-npzjq" evicted
+    pod "kube-dns-6f4fd4bdf-jbsvf" evicted
+    node "lexbz2226.lexington.ibm.com" drained
+    
+[root@lexbz2226 kube]# kubectl delete node lexbz2226.lexington.ibm.com
+    node "lexbz2226.lexington.ibm.com" deleted
+
+[root@lexbz2226 kube]# kubectl get nodes
+    No resources found.
+    [root@lexbz2226 kube]# kubeadm reset
+    [preflight] Running pre-flight checks.
+    [reset] Stopping the kubelet service.
+    [reset] Unmounting mounted directories in "/var/lib/kubelet"
+    [reset] Removing kubernetes-managed containers.
+    [reset] Deleting contents of stateful directories: [/var/lib/kubelet /etc/cni/net.d /var/lib/dockershim /var/run/kubernetes /var/lib/etcd]
+    [reset] Deleting contents of config directories: [/etc/kubernetes/manifests /etc/kubernetes/pki]
+    [reset] Deleting files: [/etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf]
+
+[root@lexbz2202 ~]# kubeadm reset
+    [preflight] Running pre-flight checks.
+    [reset] Stopping the kubelet service.
+    [reset] Unmounting mounted directories in "/var/lib/kubelet"
+    [reset] Removing kubernetes-managed containers.
+    [reset] No etcd manifest found in "/etc/kubernetes/manifests/etcd.yaml". Assuming external etcd.
+    [reset] Deleting contents of stateful directories: [/var/lib/kubelet /etc/cni/net.d /var/lib/dockershim /var/run/kubernetes]
+    [reset] Deleting contents of config directories: [/etc/kubernetes/manifests /etc/kubernetes/pki]
+    [reset] Deleting files: [/etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf]
+
+[root@lexbz2184 ~]# kubeadm reset
+    [preflight] Running pre-flight checks.
+    [reset] Stopping the kubelet service.
+    [reset] Unmounting mounted directories in "/var/lib/kubelet"
+    [reset] Removing kubernetes-managed containers.
+    [reset] No etcd manifest found in "/etc/kubernetes/manifests/etcd.yaml". Assuming external etcd.
+    [reset] Deleting contents of stateful directories: [/var/lib/kubelet /etc/cni/net.d /var/lib/dockershim /var/run/kubernetes]
+    [reset] Deleting contents of config directories: [/etc/kubernetes/manifests /etc/kubernetes/pki]
+    [reset] Deleting files: [/etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf]
+
+[root@lexbz2226 ~]# kubeadm reset
+    [preflight] Running pre-flight checks.
+    [reset] Stopping the kubelet service.
+    [reset] Unmounting mounted directories in "/var/lib/kubelet"
+    [reset] Removing kubernetes-managed containers.
+    [reset] Deleting contents of stateful directories: [/var/lib/kubelet /etc/cni/net.d /var/lib/dockershim /var/run/kubernetes /var/lib/etcd]
+    [reset] Deleting contents of config directories: [/etc/kubernetes/manifests /etc/kubernetes/pki]
+    [reset] Deleting files: [/etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf /etc/kubernetes/controller-manager.conf /etc/kubernetes/scheduler.conf]
