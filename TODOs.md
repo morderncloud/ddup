@@ -4,17 +4,19 @@
 
 * Kubernetes, Docker, Microservices
 * Spring Boot
-* Stress testing using Apache ab and JMeter
+* Stress testing using Apache AB and JMeter
 * Go lang, Python
 
 ## Web & Mobile
 
-* Node, Vue, Angular, Javascript ES6/ES7
+* Javascript ES6/ES7， Node, React, Vue, Angular
 * Java 8/9
+* Go lang
 * MongoDB, MySQL, Memcached
 * React Native, iOS, Android, WEE..
+* Python
 
 ## Certificate
 
-* AWS Architect
+* AWS Solution Architect
 * IBM Cloud Architect & Open Badges
