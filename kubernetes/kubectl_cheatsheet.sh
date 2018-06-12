@@ -46,7 +46,7 @@ $ kubectl config set-context gce --user=cluster-admin --namespace=foo \
   && kubectl config use-context gce
 
 ## Creating Objects
-Kubernetes manifests can be defined in json or yaml. The file extension .yaml, .yml, and .json can be used.
+Kubernetes manifests can be defined in json or yaml. The file extension .yaml, .yml, and .json can be used
 
 $ kubectl create -f ./my-manifest.yaml           # create resource(s)
 $ kubectl create -f ./my1.yaml -f ./my2.yaml     # create from multiple files
