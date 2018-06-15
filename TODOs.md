@@ -6,6 +6,7 @@
 * Spring Boot
 * Stress testing using Apache AB and JMeter
 * Go lang, Python
+* Linux deep into kernel build & shell
 
 ## Web & Mobile
 
@@ -13,8 +14,7 @@
 * Java 8/9
 * Go lang
 * MongoDB, MySQL, Memcached
-* React Native, iOS, Android, WEE..
-* Python
+* React Native, iOS, Android
 
 ## Certificate
 

@@ -8,6 +8,11 @@ sbybz221117 master
 
 ## Reference
 
+[Version] 	IBM Cloud Private 2.1.0.3 for Linux (64-bit) Docker (CNT27EN )
+
+Size 9,775MB Date posted 25 May 2018
+
+
 [ICP architecture](https://www.ibm.com/support/knowledgecenter/SSBS6K_2.1.0.1/getting_started/architecture.html)
 [Installation](https://www.ibm.com/support/knowledgecenter/SSBS6K_2.1.0.1/installing/install_containers.html)
 [Uninstall](https://www.ibm.com/support/knowledgecenter/SSBS6K_2.1.0.1/installing/uninstall.html)
