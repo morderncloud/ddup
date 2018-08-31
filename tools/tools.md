@@ -21,6 +21,8 @@ https://www.getpostman.com/
 * [Online drawing](https://www.draw.io/, https://about.draw.io/features/examples/, )
 * [Offline](https://www.draw.io/app, https://about.draw.io/integrations/#integrations_offline, https://support.draw.io/display/DO/Using+draw.io+in+Offline+Mode)
 * [draw io templates](https://github.com/jgraph/drawio-libs, https://github.com/jgraph/drawio-diagrams)
+* [StarUML](http://staruml.io/)
+
 ## Learning
 
 * [Kube](https://kubernetes.io/)

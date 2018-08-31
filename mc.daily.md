@@ -1,4 +1,31 @@
-# Log Kube learning progress
+# Log learning progress
+
+## 2018-07-18 14:49:15
+
+* [@Javascript iterator, module, iterator, ES6]
+
+function* fibs() {
+  let a = 1;
+  let b = 2;
+  console.log('b4 while');
+  while (true) {
+  	console.log('b4 yield');
+    yield a;
+    console.log('af yield');
+    [a, b] = [b, a + b];
+    console.log('af assign');
+  }
+  console.log('out while');
+}
+
+let [first, second] = fibs();
+console.log(first + ',' + second + ',' );
+
+## 2018-07-17 12:48:55
+
+* [@Javascript versions](https://www.w3schools.com/js/js_versions.asp)
+
+* [@Javascript let const](http://es6.ruanyifeng.com/#docs/let)
 
 ## 2018-04-18 11:44:16
 
