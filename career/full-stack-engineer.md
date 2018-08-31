@@ -1,15 +1,29 @@
-# Java learning path
+# Full stack professional learning path
 
-## Path
+## Skillset
 
-Java: Basics of OO, Design Patterns, Threading, Collections, I/O, JVM, TCP/IP, famous issues & fix
-Go: channel, routines/threading
-Python: yield, crawling
-Frontend: Javascript, Node.js, Reactive, Vue, Angular, Bootstrap, jQuery
-Frameworks: Spring Frameworks: Spring Boot, Spring Cloud, practices / principles, Microservices
-DB: MySQL design & tuning, MongoDB design & tuning
-DevOps: Docker, Jenkins, Travis, GitHub
-Cloud solutions: AWS, GCE, Azure, Ali, IBM
+* Java
+    Basics of OO, Design Patterns, Threading, Collections, I/O, JVM, TCP/IP, famous issues & fix
+* Go
+    Basics, channel, routines/threading
+* Javascript
+    ES6, Basics, Promise, Async/await, Node.js
+* Python
+    Basics, yield, threading, crawling
+* Frontend
+    Reactive, Vue, Angular, Bootstrap, jQuery
+* Frameworks
+    Spring Frameworks: Spring Boot, Spring Cloud, practices/principles, Microservices
+* DevOps/Automation
+    Docker, Jenkins, Travis, GitHub, Gradle, Ansible
+* Data/Analysis
+    Hadoop, MySQL design & tuning, MongoDB design & tuning, ELK, Akka, Kafka, New Relic
+* Cloud solutions
+    AWS, GCE, Azure, Ali, IBM
+* AI
+    TensorFlow
+    API on public Cloud: Watson Assistant, Polly, Lex
+
 
 ## Basics
 
